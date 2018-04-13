@@ -1,7 +1,12 @@
 ---
 title: "Statistical Tests from 6304 and 6305"
 author: "Darren Keeley"
+output:
+  html_document:
+    toc: true
+    theme: united
 ---
+<!--
 ##Table of Contents
 1. One sample T test
 2. Two sample T test + Tests for normality
@@ -21,10 +26,9 @@ author: "Darren Keeley"
 16. Random Effect and Mixed Effect Models + Varcomp
 17. Nested Factors
 18. Crossover Design
-
+-->
+#First, please run this chunk. Then proceed as needed.
 ```{r, message=FALSE}
-setwd("C:/Google Drive/Github/rtests")
-
 #tidyverse for data reshaping, car for Anova().
 library(tidyverse); library(car)
 
@@ -272,6 +276,7 @@ de <- read.table(text=de_string, header=F, col.names=c("subjectID", "exposure", 
 ```
 
 ```{r}
+#Chi-squared approximation may be incorrect because sample size is so small.
 tbl <- table(de$exposure, de$disease)
 
 #Chi Sq Test for Independence
