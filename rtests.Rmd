@@ -27,20 +27,20 @@ output:
 17. Nested Factors
 18. Crossover Design
 -->
-#First, please run this chunk. Then proceed as needed.
+#IMPORTANT! Run the chunk below to get correct Type III SS. Also loads necessary libraries.
 ```{r, message=FALSE}
-#tidyverse for data reshaping, car for Anova().
-library(tidyverse); library(car)
-
-#The following is required to calculate Type III SS when running ANOVA.
-#See Note 0
-#options("contrasts")
+# The following is required to calculate Type III SS when running ANOVA.
+# See Note 0
+# options("contrasts")
 options(contrasts=c('contr.sum','contr.poly'))
+
+# car for Anova().
+library(tidyverse); library(car)
 ```
 
 ###1. One sample T test, Week 5 lab
 ```{r}
-paper <- c(1660,1820,1590,1440,1730,1680,1750,1720,1900,1570,1700,1900,1800,1770,2010,1580,1620,1690,1400,1590,1750,1900,1800,2010,1580,1690,1850,1720,1900,1590)
+paper <- read.csv("data/paper.csv")[2]
 ```
 
 ```{r}
@@ -57,11 +57,7 @@ t.test(paper, mu=1600, alternative="greater")
 
 ###2. Two sample T test, HW5 #6.6
 ```{r}
-#The dataset provided by the books website and the data printed in the actual book are different.
-#river <- read.csv("data/CH06/ex6-6.txt")
-
-upstream <- c(5.2,4.8,5.1,5.0,4.9,4.8,5.0,4.7,4.7,5.0,4.6,5.2,5.0,4.9,4.7)
-downstream <- c(3.2,3.4,3.7,3.9,3.6,3.8,3.9,3.6,4.1,3.3,4.5,3.7,3.9,3.8,3.7)
+stream <- read.csv("data/stream.csv")
 ```
 
 ```{r}
@@ -71,30 +67,30 @@ downstream <- c(3.2,3.4,3.7,3.9,3.6,3.8,3.9,3.6,4.1,3.3,4.5,3.7,3.9,3.8,3.7)
 #H0: dowmstream - upstream >= -.5
 #Ha: downstream - upstream < -.5
 
-t.test(downstream, upstream, 
+t.test(stream$downstream, stream$upstream, 
        alternative="less", mu=-.5, conf.level=.01,
        var.equal=T)
 
 
 #Part B
-shapiro.test(downstream)
-shapiro.test(upstream)
+shapiro.test(stream$downstream)
+shapiro.test(stream$upstream)
 
 layout(mat = matrix(c(1,2), 2, 1),  height = c(3,1)) #matrix(data, nrow, ncol)
 par(mar=c(0, 3, 2, 1)) #margins for each plot
-hist(downstream, xlim=c(3,5), col="pink", main="Distribution of Downstream")
-boxplot(downstream, horizontal=T, outline=T, frame=F, col="green1", width=10, ylim=c(3,5), axes=F)
+hist(stream$downstream, xlim=c(3,5), col="pink", main="Distribution of Downstream")
+boxplot(stream$downstream, horizontal=T, outline=T, frame=F, col="green1", width=10, ylim=c(3,5), axes=F)
 
-qqnorm(downstream)
-qqline(downstream)
+qqnorm(stream$downstream)
+qqline(stream$downstream)
 
 layout(mat = matrix(c(1,2), 2, 1),  height = c(3,1))
 par(mar=c(0, 3, 2, 1))
-hist(upstream, xlim=c(4,6), col="pink", main="Distribution of Upstream")
-boxplot(upstream, horizontal=T, outline=T, frame=F, col="green1", width=10, ylim=c(4,6), axes=F)
+hist(stream$upstream, xlim=c(4,6), col="pink", main="Distribution of Upstream")
+boxplot(stream$upstream, horizontal=T, outline=T, frame=F, col="green1", width=10, ylim=c(4,6), axes=F)
 
-qqnorm(upstream)
-qqline(upstream)
+qqnorm(stream$upstream)
+qqline(stream$upstream)
 ```
 
 
@@ -103,7 +99,7 @@ qqline(upstream)
 
 ###3. Paired T test, HW5 #6.28
 ```{r}
-repairpersons <- read.csv("data/CH06/ex6-28.txt")
+repairpersons <- read.csv("data/ex6-28.txt")
 ```
 
 ```{r}
@@ -140,8 +136,7 @@ qqline(repairpersons$diff)
 ###4. Wilcoxon Rank Sum / Mann Whitney U non-parametric test for 2 independent means, Week 7 lab
 See Note 4 for processing hairy strings
 ```{r}
-golf_string <- "f 75 f 76 f 80 f 77 f 80 f 77 f 73 m 82 m 80 m 85 m 85 m 78 m 87 m 82"
-golf <- read.table(text=golf_string, header=FALSE, col.names = c("gender", "score"))
+golf <- read.csv("data/golf.csv")
 ```
 
 ```{r}
@@ -158,19 +153,7 @@ wilcox.exact(score ~ gender, data=golf)
 
 ###5. Wilcoxon Signed Rank np test for paired continuous data, Week 7 lab
 ```{r}
-#Dirty data step
-
-Location_string <- "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15"
-Before_string <- "10.02 10.16 9.96 10.01 9.87 10.05 10.07 10.08 10.05 10.04 10.09 10.09 9.92 10.05 10.13"
-After_string <- "10.21 10.16 10.11 10.10 10.07 10.13 10.08 10.30 10.17 10.10 10.06 10.37 10.24 10.19 10.13"
-
-location <- read.table(text=Location_string, header=FALSE, col.names = c("location"))
-before <- read.table(text=Before_string, header=FALSE, col.names = c("before"))
-after <- read.table(text=After_string, header=FALSE, col.names = c("after"))
-
-mining <- as.data.frame(c(location, before, after))
-  
-rm(Location_string, Before_string, After_string, location, before, after)
+mining <- read.csv("data/mining.csv")
 ```
 
 ```{r}
@@ -186,33 +169,7 @@ wilcox.exact(mining$after, mining$before, paired=T)
 ###6. One Way ANOVA, Week 9 lab
 See Note 6 for references
 ```{r}
-oil_string <- "
-CNVNTNL      44
-CNVNTNL      49
-CNVNTNL      37
-CNVNTNL      38
-CNVNTNL      54
-CNVNTNL      29
-CNVNTNL      39
-CNVNTNL      65
-SYNTHET      42
-SYNTHET      59
-SYNTHET      52
-SYNTHET      57
-SYNTHET      49
-SYNTHET      45
-SYNTHET      44
-HYBRID       60
-HYBRID       71
-HYBRID       78
-HYBRID       35
-HYBRID       18
-HYBRID       48
-HYBRID       36
-HYBRID       68
-"
-
-oil <- read.table(text=oil_string, header=F, col.names = c("type", "visc"))
+oil <- read.csv("data/oil.csv")
 ```
 
 Using car package
@@ -221,9 +178,8 @@ library(car) #easier to calculate type 3 SS using this package than base R
 
 Anova(lm(visc ~ type, data=oil), type=3)
 
-#HOV Levene test. The result for the ANOVA is the HOV test. See Note 6
-oil.lm <- lm(visc ~ type, data = oil)
-Anova(lm(residuals(oil.lm)^2 ~ oil$type))
+#HOV Levene test. SAS does Levene's a different way, see Note 6.
+leveneTest(visc ~ type, data=oil)
 ```
 
 
@@ -241,42 +197,11 @@ kruskal.test(visc ~ type, data = oil)
 
 ###8. Chi Square test for independence, week 9 lab
 ```{r}
-de_string <- "
-1 exposed Positive
-2 exposed Positive
-3 exposed Positive
-4 exposed Positive
-5 exposed negative
-6 notExposed negative
-7 exposed Positive
-8 exposed Positive
-9 exposed Positive
-10 notExposed negative 
-11 exposed negative
-12 exposed Positive
-13 notExposed Positive
-14 notExposed negative 
-15 exposed Positive 	
-16 exposed Positive
-17 exposed negative
-18 notExposed negative 
-19 exposed Positive
-20 exposed Positive
-21 exposed Positive
-22 notExposed negative 
-23 exposed negative
-24 exposed Positive
-25 notExposed negative
-26 exposed negative
-27 notExposed negative
-28 exposed Positive
-"
-
-de <- read.table(text=de_string, header=F, col.names=c("subjectID", "exposure", "disease"))
+de <- read.csv("data/de.csv")
 ```
 
 ```{r}
-#Chi-squared approximation may be incorrect because sample size is so small.
+#Chi-square function requires data to be in a table
 tbl <- table(de$exposure, de$disease)
 
 #Chi Sq Test for Independence
@@ -295,19 +220,7 @@ fisher.test(de$exposure, de$disease)
 
 ###9. Chi Square goodness of fit test, Week 10 lab
 ```{r}
-gator_string <- "
-1.24 I  1.30 I  1.30 I  1.32 F  1.32 F  1.40 F  1.42 I  1.42 F
-1.45 I  1.45 O  1.47 I  1.47 F  1.50 I  1.52 I  1.55 I  1.60 I
-1.63 I  1.65 O  1.65 I  1.65 F  1.65 F  1.68 F  1.70 I  1.73 O
-1.78 I  1.78 I  1.78 O  1.80 I  1.80 F  1.85 F  1.88 I  1.93 I
-1.98 I  2.03 F  2.03 O  2.16 F  2.26 F  2.31 F  2.31 F  2.36 F
-3.36 F  3.39 F  3.41 F  2.44 O  2.46 F  2.56 O  2.67 O  2.72 I
-3.79 F  2.84 F  3.25 O  3.28 O  3.33 F  3.56 F  3.58 F  3.66 F
-3.68 O  3.71 F  3.89 F
-"
-
-#replace newlines with spaces, otherwise read.table thinks there are 16 columns.
-gator <- read.table(text=gsub("\n", " ", gator_string, perl=TRUE), header=F, col.names=c("length", "type"))
+gator <- read.csv("data/gator.csv")
 
 #data must be summarized for chisq test
 gator_count <- gator %>% 
@@ -328,43 +241,13 @@ chisq.test(x=gator_count$count, p=c(1/2, 3/10, 1/5))
 ###10. Linear Contrasts, Week 3 lab (first lab)
 See Note 10 for reference
 ```{r}
-student_scores_string <- "
-1     -3.4  -0.2  7.7   12
-2     -2.8  5.2   5.5   4.1
-3     2.2   6.6   -0.8  5.9
-4     -0.8  5.2   7.4   13.5
-5     2.8   -0.6  0.1   7.5
-6     -5.9  5.4   11.7  9.3
-7     7.8   3.1   1.2   7.1
-8     -3.5  6.5   3.8   -0.9
-9     2.9   2.4   5.1   8.3
-10    1.9   6.2   4.3   9.8
-11    -0.2  7.9   3.9   11.1
-12    1.5   7.9   6.9   4.9
-13    0.4   6.6   2.8   5.8
-14    -0.5  0.2   5.4   2.8
-15    1.1   1.9   2.5   12
-16    5.3   1.3   5.2   8.6
-17    -4    1.8   3.1   2
-18    -1.3  3.1   6.6   5.9
-19    2.6   1.4   0.2   5.6
-20    -0.9  2.1   7.1   11.6
-21    -0.6  6.6   9.2   7.8
-22    -5    7     3     7.2
-23    2.4   -0.7  2.3   8.3
-24    -0.1  4.1   10.2  6.5
-25    -4.7  3.8   4.7   8.3
-"
-
-student_scores <- read.table(text=gsub("\n", " ", student_scores_string, perl=TRUE), header=F, col.names=c("student", "control", "piano", "computer", "instructor"))
-
-scores_long <- student_scores %>% 
-  gather(key="method", value="score", control, piano, computer, instructor) %>% 
-  arrange(method)
+scores <- read.csv("data/scores.csv")
 
 #The order of the contrast weights maps to the order of the levels. Here, I set the order to be alphabetical.
-levels(scores_long$method) <- c("computer", "control", "instructor", "piano")
+levels(scores$method) <- c("computer", "control", "instructor", "piano")
 ```
+
+
 
 ```{r}
 #Calculate inverse matrix of contrasts
@@ -378,7 +261,7 @@ mat <- solve(mat_temp)
 mat <- mat[, -1]
 
 #Calculate contrasts.
-model <- lm(score ~ method, data=scores_long, contrasts=list(method = mat))
+model <- lm(score ~ method, data=scores, contrasts=list(method = mat))
 summary(model)
 ```
 
@@ -388,7 +271,7 @@ Different package used, see Note 11
 ```{r}
 library(TukeyC)
 #Tukey won't take lm or Anova, only aov.
-fit <- aov(score ~ method, data=scores_long)
+fit <- aov(score ~ method, data=scores)
 
 #This package matches SAS output. TukeyC(x, which)
 tukes <- TukeyC(fit, "method")
@@ -400,19 +283,7 @@ plot(tukes)
 ###12. Two Way ANOVA, Week 4 lab (second lab)
 See Note 12
 ```{r}
-soil_string <- "
-5.2	100	4 5.9	100	4 6.3	100	4 7.1	100	5
-7.4	100	5 7.5	100	5 7.6	100	6 7.2	100	6
-7.4	100	6 7.2	100	7 7.5	100	7 7.2	100	7
-7.4	200	4 7.0	200	4 7.6	200	4 7.4	200	5
-7.3	200	5 7.1	200	5 7.6	200	6 7.5	200	6
-7.8	200	6 7.4	200	7 7.0	200	7 6.9	200	7
-6.3	300	4 6.7	300	4 6.1	300	4 7.3	300	5
-7.5	300	5 7.2	300	5 7.2	300	6 7.3	300	6
-7.0	300	6 6.8	300	7 6.6	300	7 6.4	300	7
-"
-
-soil <- read.table(text=gsub("\n", " ", soil_string, perl=TRUE), header=F, col.names=c("diameter", "calcium", "ph"))
+soil <- read.csv("data/soil.csv")
 
 soil$calcium <- as.factor(soil$calcium)
 soil$ph <- as.factor(soil$ph)
@@ -420,35 +291,30 @@ soil$ph <- as.factor(soil$ph)
 Using car package
 ```{r}
 #Two way Anova
-Anova(lm(diameter ~ calcium * ph, data=soil), type=3)
+soil_fit <- lm(diameter ~ calcium * ph, data=soil)
+Anova(soil_fit, type=3)
 
-#Output residuals and test them for normality
-resids <- resid(lm(diameter ~ calcium * ph, data=soil))
-
-shapiro.test(resids)
+# Residuals test for normality
+shapiro.test(soil_fit$residuals)
 
 layout(mat = matrix(c(1,2), 2, 1),  height = c(3,1))
 par(mar=c(0, 3, 2, 1))
-hist(resids, xlim=c(-1,1), col="pink", main="Distribution of Residuals")
-boxplot(resids, horizontal=T, outline=T, frame=F, col="green1", width=10, ylim=c(-1,1), axes=F)
+hist(soil_fit$residuals, xlim=c(-1,1), col="pink", main="Distribution of Residuals")
+boxplot(soil_fit$residuals, horizontal=T, outline=T, frame=F, col="green1", width=10, ylim=c(-1,1), axes=F)
 
-qqnorm(resids)
-qqline(resids)
+qqnorm(soil_fit$residuals)
+qqline(soil_fit$residuals)
 ```
+
+
 Another example from HW4 #14-8
+
 ```{r}
 #Another example from HW4 #14-8
-attention <- read.csv("data/CH14/ex14-8.txt")
-
-attention_stacked <- attention %>% 
-  gather(key="key", value="span", X.A1.P1., X.A2.P1., X.A3.P1., X.A1.P2., X.A2.P2., X.A3.P2.) 
-
-attention_stacked$key <- gsub('^..|.$', '', attention_stacked$key)
-
-attention_stacked <- separate(attention_stacked, key, c("age", "product"))
+attention <- read.csv("data/attention.csv")
 
 #Two way anova
-Anova(lm(span ~ age * product, data=attention_stacked), type=3)
+Anova(lm(span ~ age * product, data=attention), type=3)
 ```
 
 
@@ -456,8 +322,8 @@ Anova(lm(span ~ age * product, data=attention_stacked), type=3)
 
 ###13. Completely Randomized Block Design, HW3 #15-6
 ```{r}
-music <- read.csv("data/CH15/ex15-6.txt")
-colnames(music) <- c("subject", "type_music", "typing_efficiency")
+music <- read.csv("data/music.csv")
+
 music$subject <- as.factor(music$subject)
 ```
 
@@ -471,8 +337,8 @@ Anova(lm(typing_efficiency ~ type_music + subject, data=music), type=3)
 
 ###14. Latin Square Design (LSD), HW3 #15-40
 ```{r}
-lights <- read.csv("data/CH15/ex15-40.txt")
-colnames(lights) <- c("intersection", "minutes", "signaling", "period")
+lights <- read.csv("data/lights.csv")
+
 lights$intersection <- as.factor(lights$intersection)
 lights$period <- as.factor(lights$period)
 ```
@@ -496,30 +362,7 @@ plot(tukes)
 
 ###15. ANCOVA, Week 5 lab
 ```{r}
-oysters_string <- "
-1 1 27.2 32.6
-1 2 32.0 36.6
-1 3 33.0 37.7
-1 4 26.8 31.0
-2 1 28.6 33.8
-2 2 26.8 31.7
-2 3 26.5 30.7
-2 4 26.8 30.4
-3 1 28.6 35.2
-3 2 22.4 29.1
-3 3 23.2 28.9
-3 4 24.4 30.2
-4 1 29.3 35.0
-4 2 21.8 27.0
-4 3 30.3 36.4
-4 4 24.3 30.5
-5 1 20.4 24.6
-5 2 19.6 23.4
-5 3 25.1 30.3
-5 4 18.1 21.8
-"
-
-oysters <- read.table(text=gsub("\n", " ", oysters_string, perl=TRUE), header=F, col.names=c("treatment", "replication", "initial_weight", "final_weight"))
+oysters <- read.csv("data/oysters.csv")
 
 oysters$treatment <- as.factor(oysters$treatment)
 oysters$replication <- as.factor(oysters$replication)
@@ -540,34 +383,30 @@ Anova(lm(final_weight ~ initial_weight * treatment, data=oysters), type=3)
 See Note 16 for all the testing
 
 ```{r}
-pesticide <- read.csv("data/CH17/ex17-10.txt")
-colnames(pesticide) <- c("location", "chemical", "number_killed")
+pesticide <- read.csv("data/pesticide.csv")
+
 pesticide$location <- as.factor(pesticide$location)
 pesticide$chemical <- as.factor(pesticide$chemical)
 ```
 
 ```{r}
-#Make F table manually
-fit <- lm(number_killed ~ location * chemical, data=pesticide)
-results <- Anova(fit, type=3) #this is the anova table. The following replaces F tests with MS_main/MS_interaction
-Df <- results$Df
-SumSq <- results$"Sum Sq"
-MeanSq <- SumSq/results$Df
-Fvalue <- results$"F value"
-Pvalue <- results$"Pr(>F)"
-Error.Term <- MeanSq[4]
-df.error <- Df[4]
-
-Fvalue[2] <- MeanSq[2]/Error.Term
-Pvalue[2] <- 1 - pf(Fvalue[2], Df[2], df.error)
-
-Fvalue[3] <- MeanSq[3]/Error.Term
-Pvalue[3] <- 1 - pf(Fvalue[3], Df[3], df.error)
-
-Ftable <- cbind(Df, SumSq, MeanSq, Fvalue, Pvalue)
-rownames(Ftable) <- c("Intercept", "Locations", "Chemicals", "Locations:Chemicals", "Residuals")
-print(Ftable)
+pest_fit <- lm(number_killed ~ location * chemical, data=pesticide)
+Anova(pest_fit, type=3)
 ```
+
+```{r}
+# When you have random effect, divide the individual effects by interaction term.
+# Chemical is random and interacts with Location, so calculating the F-stat for both involves dividing by mean square of the interaction, not the error.
+
+# F-value for Location = ms_location/ms_location:chemical
+(3.81/4)/(16.16/12) 
+pf((3.81/4)/(16.16/12), 4, 12, lower.tail=F)
+
+# F-value for Chemical = ms_chemical/ms_location:chemical
+(180.13/3)/(16.16/12)
+pf((180.13/3)/(16.16/12), 3, 12, lower.tail=F)
+```
+
 
 Varcomp, see Note 16 for reference.
 ```{r}
@@ -584,231 +423,84 @@ print(fit)
 
 ###17. Nested Factors, Week 8 lab #1
 ```{r}
-drug_string <- "
-5.03
-5.10
-5.25
-4.98
-5.05
-4.64
-4.73
-4.82
-4.95
-5.06
-5.10
-5.15
-5.20
-5.08
-5.14
-5.05
-4.96
-5.12
-5.12
-5.05
-5.46
-5.15
-5.18
-5.18
-5.11
-4.90
-4.95
-4.86
-4.86
-5.07
-"
+drug <- read.csv("data/drug.csv")
 
-drug_y <- read.table(text=gsub("\n", " ", drug_string, perl=TRUE), header=F, col.names = c('y'))
-
-counter_y = 0
-site <- c()
-batch <- c()
-tablet <- c()
-
-for (i in 1:2){ #site
-  for (j in 1:3){ #batch
-    for (k in 1:5){ #tablet
-      counter_y <- counter_y + 1
-      site[counter_y] <- i
-      batch[counter_y] <- j
-      tablet[counter_y] <- k
-    }
-  }
-}
-
-drug <- data.frame(site, batch, tablet, drug_y)
 drug$site <- as.factor(drug$site)
 drug$batch <- as.factor(drug$batch)
 drug$tablet <- as.factor(drug$tablet)
-rm(site, batch, tablet, drug_y)
 ```
 
 ```{r}
-#Remembering to convert the categorical variables to factors is important.
-#Specifying nested term: site/batch == batch(site) in SAS
-fit <- lm(y ~ site + site/batch, data=drug)
-results <- Anova(fit, type=3) 
+# Specifying nested term: site/batch == batch(site) in SAS
+drug_fit <- Anova(lm(y ~ site + site/batch, data=drug), type=3)
+drug_fit
+```
 
-Df <- results$Df
-SumSq <- results$"Sum Sq"
-MeanSq <- SumSq/results$Df
-Fvalue <- results$"F value"
-Pvalue <- results$"Pr(>F)"
-Error.Term <- MeanSq[3]
-df.error <- Df[3]
 
-Fvalue[2] <- MeanSq[2]/Error.Term
-Pvalue[2] <- 1 - pf(Fvalue[2], Df[2], df.error)
+```{r}
+# Batch is a random effect
+# F-stat for site = MS_site / MS_site:batch
+# Anova() rounds
+0.02/(0.45/4)
 
-Ftable <- cbind(Df, SumSq, MeanSq, Fvalue, Pvalue)
-rownames(Ftable) <- c("Intercept", "Site", "Batch(Site)", "Residuals")
-print(Ftable)
+# But if you grab from fit object, you can get exact answers
+x <- (drug_fit$`Sum Sq`[2]/drug_fit$Df[2])/(drug_fit$`Sum Sq`[3]/drug_fit$Df[3])
+x
+
+pf(x, 1, 4, lower.tail=F)
 ```
 
 Week 8 lab, #2
 ```{r}
-y_string <- "
-2.2 2.0 2.1 2.3 2.5 2.7 2.8 2.5
-2.4 2.4 2.2 1.8 2.8 2.5 2.5 2.3
-3.0 2.4 2.0 1.9 2.7 2.0 2.4 2.6
-2.7 2.3 1.9 2.5 2.7 2.0 2.4 2.6
-2.5 2.2 1.8 2.6 2.7 2.6 2.4 2.7
-2.1 2.2 1.7 2.3 2.5 2.4 2.4 2.5
-"
-y_vector <- read.table(text=gsub("\n", " ", y_string, perl=TRUE), header=F, col.names = c('y'))
+engi <- read.csv("data/engi.csv")
 
-counter_y = 0
-device <- c()
-rep <- c()
-facility <- c()
-tester <- c()
-
-for (i in 1:3){ #device
-  for (j in 1:2){ #rep
-    for (k in 1:2){ #facility
-      for (l in 1:4){ #tester
-        counter_y <- counter_y + 1
-        device[counter_y] <- i
-        rep[counter_y] <- j
-        facility[counter_y] <- k 
-        tester[counter_y] <- l
-      }
-    }
-  }
-}
-
-engi <- data.frame(device, rep, facility, tester, y_vector)
 engi$device <- as.factor(engi$device)
 engi$rep <- as.factor(engi$rep)
 engi$facility <- as.factor(engi$facility)
 engi$tester <- as.factor(engi$tester)
-
-rm(device, rep, facility, tester, y_vector)
 ```
 
 ```{r}
-fit <- lm(y ~ facility + device + facility:device + facility/tester, data=engi)
-results <- Anova(fit, type=3) 
-
-Df <- results$Df
-SumSq <- results$"Sum Sq"
-MeanSq <- SumSq/results$Df
-Fvalue <- results$"F value"
-Pvalue <- results$"Pr(>F)"
-Error.Term <- MeanSq[5]
-df.error <- Df[5]
-
-Fvalue[2] <- MeanSq[2]/Error.Term
-Pvalue[2] <- 1 - pf(Fvalue[2], Df[2], df.error)
-
-Ftable <- cbind(Df, SumSq, MeanSq, Fvalue, Pvalue)
-rownames(Ftable) <- c("Intercept", "Facility", "Device", "Facility*Device", "Tester(Facility)", "Residuals")
-print(Ftable)
+# Tester is nested within facility
+engi_fit <- Anova(lm(y ~ facility + device + facility:device + facility/tester, data=engi), type=3)
+engi_fit
 ```
 
+```{r}
+# Finding F-stat and p-value for Facility, which has random effect Tester nested within it.
+# Approx
+(0.935)/(1.106/6)
+pf((0.935)/(1.106/6),1,6,lower.tail=F)
+
+# Exact
+x <- engi_fit$`Sum Sq`[2]/(engi_fit$`Sum Sq`[5]/engi_fit$Df[5])
+x
+pf(x, 1, 6, lower.tail=F)
+```
 
 
 
 
 ###18. Crossover Design, Week 9 lab
 ```{r}
-y_string <- "
-1.5 2.2 3.4
-2.0 2.6 3.1
-1.6 2.7 3.2
-1.1 2.3 2.9
-2.5 3.5 1.9
-2.8 3.1 1.5
-2.7 2.9 2.4
-2.4 2.6 2.3
-3.3 1.9 2.7
-3.1 1.6 2.5
-3.6 2.3 2.2
-3.0 2.5 2.0
-"
-y_vector <- read.table(text=gsub("\n", " ", y_string, perl=TRUE), header=F, col.names = c('y'))
-
-counter_y = 0
-sequence <- c()
-patient <- c()
-period <- c()
-
-for (i in 1:3){ #sequence
-  for (j in 1:4){ #patient
-    for (k in 1:3){ #period
-      counter_y <- counter_y + 1
-      sequence[counter_y] <- i
-      patient[counter_y] <- j
-      period[counter_y] <- k 
-    }
-  }
-}
-
-bp <- data.frame(sequence, patient, period, y_vector)
+bp <- read.csv("data/bp.csv")
 bp$sequence<- as.factor(bp$sequence)
 bp$patient<- as.factor(bp$patient)
 bp$period<- as.factor(bp$period)
-
-rm(sequence, patient, period, y_vector)
-
-trt_str <- data.frame(sequence=as.factor(c(1,2,3)),
-                        period_1=c("T1", "T2", "T3"),
-                        period_2=c("T2", "T3", "T1"),
-                        period_3=c("T3", "T1", "T2")
-                        )
-trt_str <- gather(trt_str, key="period", value="treatment", period_1, period_2, period_3)
-trt_str$period <- as.factor(gsub("period_", "", trt_str$period, perl=TRUE))
-
-
-bp <- inner_join(bp, trt_str, c("sequence", "period"))
-bp$treatment<- as.factor(bp$treatment)
 ```
 
 ```{r}
-#Because of perfect multicolinearity, singular.ok = T, see Note 18
-fit <- lm(y ~ sequence + treatment + period + sequence/patient + treatment:period, data=bp)
-results <- Anova(fit, type=3, singular.ok=T) 
-print(results)
-
-#Since interaction is insignificant, rerun model without it.
-fit <- lm(y ~ sequence + treatment + period + sequence/patient, data=bp)
-results <- Anova(fit, type=3) 
-
-Df <- results$Df
-SumSq <- results$"Sum Sq"
-MeanSq <- SumSq/results$Df
-Fvalue <- results$"F value"
-Pvalue <- results$"Pr(>F)"
-Error.Term <- MeanSq[5]
-df.error <- Df[5]
-
-Fvalue[2] <- MeanSq[2]/Error.Term
-Pvalue[2] <- 1 - pf(Fvalue[2], Df[2], df.error)
-
-Ftable <- cbind(Df, SumSq, MeanSq, Fvalue, Pvalue)
-rownames(Ftable) <- c("Intercept", "Sequence", "Treatment", "Period", "Patient(Sequence)", "Residuals")
-print(Ftable)
+# Since interaction is insignificant, rerun model without it.
+bp_fit <- Anova(lm(y ~ sequence + treatment + period + sequence/patient, data=bp), type=3)
+bp_fit
 ```
 
+```{r}
+# Patient is nested within Sequence, and thus is considered a random effect.
+# F-stat for Sequence = MS_seq / MS_seq:pat
+(bp_fit$`Sum Sq`[2]/bp_fit$Df[2])/(bp_fit$`Sum Sq`[5]/bp_fit$Df[5])
+pf((bp_fit$`Sum Sq`[2]/bp_fit$Df[2])/(bp_fit$`Sum Sq`[5]/bp_fit$Df[5]), 2,9,lower.tail = F)
+```
 
 
 
